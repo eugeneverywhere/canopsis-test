@@ -1,0 +1,11 @@
+Log:
+  MinLevel: DEBUG
+
+Rabbit:
+  Addr: amqp://localhost:5672/
+  InputChannel: alarm_monitoring
+
+DB:
+  Host: "localhost"
+  Port: 27027
+  Name: "test"

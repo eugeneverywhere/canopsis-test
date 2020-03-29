@@ -1,0 +1,25 @@
+version: '3'
+services:
+  mongodb:
+    image: 'mongo'
+    container_name: 'canopsis-test-mongo'
+    environment:
+      - MONGO_INITDB_DATABASE=canopsis-test
+    volumes:
+      - ./data/mongo-volume:/data/db
+    ports:
+      - '27027-27029:27017-27019'
+
+  rabbitmq:
+    image: 'rabbitmq:3.7.5-management'
+    hostname: app-rabbitmq
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - ./data/rabbitmq:/var/lib/rabbitmq/mnesia/rabbit@app-rabbitmq:cached
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=6085e2412b6fa88647466c6a81c0cea1
+      - RABBITMQ_DEFAULT_USER=test
+      - RABBITMQ_DEFAULT_PASS=test
+      - RABBITMQ_DEFAULT_VHOST=/
