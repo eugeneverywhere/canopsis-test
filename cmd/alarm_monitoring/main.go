@@ -1,20 +1,18 @@
 package main
 
 import (
-	"canopsis/config"
-	"cmc/environment/rabbit"
 	"context"
 	"flag"
 	"fmt"
+	"github.com/eugeneverywhere/canopsis-test/config"
+	"github.com/eugeneverywhere/canopsis-test/db"
+	"github.com/eugeneverywhere/canopsis-test/handler"
+	"github.com/eugeneverywhere/canopsis-test/rabbit"
 	"github.com/lillilli/logger"
 	"github.com/lillilli/vconf"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 var (
@@ -45,23 +43,18 @@ func main() {
 		log.Errorf("MongoDB init failed: %v", err)
 		os.Exit(1)
 	}
+	defer db.Close()
 
-	startProcessing(log, inputSubscriber, db)
+	startProcessing(log, inputSubscriber, handler.New(db))
 }
 
-func initMongoDB(cfg *config.Config) (*mongo.Client, error) {
-	dbUri := fmt.Sprintf("mongodb://%s:%s", cfg.DB.Host, cfg.DB.Port)
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dbUri))
+func initMongoDB(cfg *config.Config) (db.DB, error) {
+	db := db.New(fmt.Sprintf("%s:%s", cfg.DB.Host, cfg.DB.Port), cfg.DB.Name)
+	err := db.Connect()
 	if err != nil {
 		return nil, err
 	}
-	ctx, _ = context.WithTimeout(context.Background(), 2*time.Second)
-	err = client.Ping(ctx, readpref.Primary())
-	if err != nil {
-		return nil, err
-	}
-	return client, nil
+	return db, nil
 }
 
 func initRabbit(cfg *config.Config) (subscriber rabbit.QueueSubscriber, err error) {
@@ -81,7 +74,7 @@ func initRabbit(cfg *config.Config) (subscriber rabbit.QueueSubscriber, err erro
 
 func startProcessing(log logger.Logger,
 	subscriber rabbit.QueueSubscriber,
-	client *mongo.Client) {
+	handler handler.AlarmHandler) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
 
@@ -91,8 +84,7 @@ func startProcessing(log logger.Logger,
 		os.Exit(1)
 	}
 
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
 
 	go func() {
 		for {
@@ -101,8 +93,7 @@ func startProcessing(log logger.Logger,
 				log.Info("Listening stopped")
 				return
 			case data := <-inputChannel:
-				fmt.Println(data)
-				//go dispatcher.Dispatch(data.Body)
+				go handler.HandleMsg(data.Body)
 			}
 		}
 	}()

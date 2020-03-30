@@ -14,6 +14,8 @@ type Config struct {
 type RabbitConfig struct {
 	Addr         string
 	InputChannel string
+	User         string
+	Password     string
 }
 
 // DBConfig - db connection params
