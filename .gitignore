@@ -5,6 +5,7 @@
 *.so
 *.dylib
 cmd/alarm_monitoring/alarm_monitoring
+.local.yml
 # Test binary, built with `go test -c`
 *.test
 
