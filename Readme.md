@@ -10,7 +10,7 @@ You may use docker-compose.yml from repo
 
 ```bash
 git clone https://github.com/eugeneverywhere/canopsis-test.git && cd canopsis-test
-make setup && make config 
+make setup && make configure 
 docker-compose up -d
 make run
 ```
