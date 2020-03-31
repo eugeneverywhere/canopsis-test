@@ -2,7 +2,7 @@
  
 ## Setting up and Launch
 To setup local environment MongoDB and RabbitMQ instances are required. 
-you may use docker-compose.yml from repo
+You may use docker-compose.yml from repo
 
 1. Clone the repository.
 2. Install dependencies, create the config file.
