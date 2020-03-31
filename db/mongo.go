@@ -46,8 +46,10 @@ func New(url string, name string) DB {
 }
 
 func (db *mongoDB) Lock(key string) error {
+	db.log.Debugf("Locking: %s", key)
 	err := db.locker.XLock("alarm", key, lock.LockDetails{TTL: lockSecondsTTL})
 	if err == lock.ErrAlreadyLocked {
+		db.log.Debugf("Already locked: %s", key)
 		for i := 0; i < maxAttempts; i++ {
 			time.Sleep(lockSecondsTTL * time.Second)
 			err := db.locker.XLock("alarm", key, lock.LockDetails{TTL: lockSecondsTTL})
@@ -56,10 +58,14 @@ func (db *mongoDB) Lock(key string) error {
 			}
 		}
 	}
+	if err == nil {
+		return nil
+	}
 	return errors.New("lock attempt timeout reached")
 }
 
 func (db *mongoDB) Unlock(key string) error {
+	db.log.Debugf("Unlocking: %s", key)
 	_, err := db.locker.Unlock(key)
 	return err
 }
@@ -75,31 +81,34 @@ func (db *mongoDB) CreateAlarm(event *types.Event) error {
 		LastTime:  event.Timestamp,
 		Status:    models.OngoingStatus,
 	}
+	db.log.Debugf("Creating: %s", alarm)
 	return db.session.DB(db.name).C(alarmCollection).Insert(alarm)
 }
 
 func (db *mongoDB) UpdateAlarm(event *types.Event, status string) error {
+	db.log.Debugf("Updating: %s", event)
 	return db.session.DB(db.name).C(alarmCollection).
 		Update(bson.M{"component": event.Component, "resource": event.Resource, "status": models.OngoingStatus},
-			bson.M{
+			bson.M{"$set": bson.M{
 				"last_time": event.Timestamp,
 				"last_msg":  event.Message,
 				"crit":      event.Critical,
 				"status":    status,
+			},
 			})
 }
 
 func (db *mongoDB) GetAlarm(event *types.Event) (*models.Alarm, error) {
 	alarm := &models.Alarm{}
+	db.log.Debugf("Searching: %s", event.Component+event.Resource)
 	err := db.session.DB(db.name).C(alarmCollection).
 		Find(bson.M{"component": event.Component, "resource": event.Resource, "status": models.OngoingStatus}).
 		One(alarm)
 	if err != nil {
+		db.log.Debugf("Not found: %s", event.Component+event.Resource)
 		return nil, err
 	}
-	if alarm.Component == "" {
-		return nil, nil
-	}
+	db.log.Debugf("Found: %s", alarm)
 	return alarm, nil
 }
 

@@ -49,7 +49,7 @@ func main() {
 }
 
 func initMongoDB(cfg *config.Config) (db.DB, error) {
-	db := db.New(fmt.Sprintf("%s:%s", cfg.DB.Host, cfg.DB.Port), cfg.DB.Name)
+	db := db.New(fmt.Sprintf("%s:%v", cfg.DB.Host, cfg.DB.Port), cfg.DB.Name)
 	err := db.Connect()
 	if err != nil {
 		return nil, err

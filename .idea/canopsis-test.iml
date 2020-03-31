@@ -5,6 +5,7 @@
     <content url="file://$MODULE_DIR$/../EcoBrotherBot" />
     <content url="file://$MODULE_DIR$/../billing" />
     <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$/../cmc/cmc" />
     <content url="file://$MODULE_DIR$/../cmc/environment" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

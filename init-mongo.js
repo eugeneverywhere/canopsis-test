@@ -1,1 +1,0 @@
-db.locks.createIndex( { resource: 1 }, { unique: true } )
