@@ -2,9 +2,7 @@ Log:
   MinLevel: DEBUG
 
 Rabbit:
-  User:  "test"
-  Password: "test"
-  Addr: amqp://localhost:5672/
+  Addr: amqp://test:test@localhost:5672/
   InputChannel: alarm_monitoring
 
 DB:
