@@ -22,5 +22,5 @@ make test
 
 To run utility for testing, which will send messages to rabbitMQ:
 ```bash
-make run:ft
+make ft:run
 ```
