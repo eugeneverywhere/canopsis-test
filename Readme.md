@@ -9,7 +9,7 @@ You may use docker-compose.yml from repo
 3. Launch the project.
 
 ```bash
-git clone https://github.com/eugeneverywhere/canopsis-test.git && cd billing
+git clone https://github.com/eugeneverywhere/canopsis-test.git && cd canopsis-test
 make setup && make config 
 docker-compose up -d
 make run
