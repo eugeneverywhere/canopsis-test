@@ -6,7 +6,8 @@ You may use docker-compose.yml from repo
 
 1. Clone the repository.
 2. Install dependencies, create the config file.
-3. Launch the project.
+3. Run Database and Message Broker
+4. Launch the project.
 
 ```bash
 git clone https://github.com/eugeneverywhere/canopsis-test.git && cd canopsis-test
